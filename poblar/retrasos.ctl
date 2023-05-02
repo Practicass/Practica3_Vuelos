@@ -3,7 +3,11 @@ LOAD DATA
 INFILE '../data/retrasos.csv'
 INTO TABLE RETRASOS
 FIELDS TERMINATED BY ';'
+OPTIONALLY ENCLOSED BY '"'
+TRAILING NULLCOLS
 ( 
-    IdIncidente,
-    Duracion
+    Vuelo,
+    Duracion,
+    Causa,
+    IdRetraso "retrasos.nextval"
 )

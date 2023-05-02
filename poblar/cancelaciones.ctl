@@ -3,6 +3,9 @@ LOAD DATA
 INFILE '../data/cancelaciones.csv'
 INTO TABLE CANCELACIONES
 FIELDS TERMINATED BY ';'
+OPTIONALLY ENCLOSED BY '"'
+TRAILING NULLCOLS
 ( 
-    IdIncidente
+    Vuelo
+    IdCancelacion "retrasos.nextval"
 )

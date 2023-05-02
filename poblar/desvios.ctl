@@ -3,7 +3,10 @@ LOAD DATA
 INFILE '../data/desvios.csv'
 INTO TABLE DESVIOS
 FIELDS TERMINATED BY ';'
+OPTIONALLY ENCLOSED BY '"'
+TRAILING NULLCOLS
 ( 
-    IdIncidente,
+    IdVuelo,
     AeropuertoAlt
+    IdDesvio "desvios.nextval"
 )
