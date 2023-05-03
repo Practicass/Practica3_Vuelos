@@ -73,15 +73,15 @@ ORDER BY ratio DESC
 
 
 
-Select M2.Modelo, M2.fabricante, M2.Motor
+Select M2.Modelo
 FROM MODELO M2
 WHERE (Select count(*)*100
         FROM VUELOS V, AVIONES A2, MODELO M, RETRASOS R
-        WHERE V.Avion= A2.matricula and A2.modelo=M2.modelo and V.IdVuelo=R.Vuelo and R.causa="seguridad"
-        GROUP BY M.modelo)>(Select count(*)
+        WHERE V.Avion= A2.matricula and A2.modelo=M2.modelo and V.IdVuelo=R.Vuelo and R.causa='seguridad'
+        )>(Select count(*)
                                FROM VUELOS V, AVIONES A2, MODELO M, RETRASOS R
                                WHERE V.Avion=A2.matricula and A2.modelo=M2.modelo and V.IdVuelo=R.vuelo
-                               GROUP BY M.fabricante)
+                               )
 
 
 
@@ -90,8 +90,17 @@ WHERE (Select count(*)*100
 
 
 
-
-
+--Fin 2:
+Select M2.Modelo, M2.fabricante, M2.motor
+FROM MODELO M2
+WHERE   (Select count(*)*100
+        FROM VUELOS V, AVIONES A2, MODELO M, RETRASOS R
+        WHERE V.Avion= A2.matricula and A2.modelo=M.modelo and M.modelo=M2.modelo and V.IdVuelo=R.Vuelo and R.causa='seguridad'
+        GROUP BY M.MODELO)>
+        (Select count(*)
+        FROM VUELOS V, AVIONES A2, MODELO M, RETRASOS R
+        WHERE V.Avion= A2.matricula and A2.modelo=M.modelo and M.modelo=M2.modelo and V.IdVuelo=R.Vuelo 
+        GROUP BY M.MODELO)
 
 
 
