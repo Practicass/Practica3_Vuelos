@@ -109,8 +109,31 @@ Select M.modelo, M.fabricante, M.motor, count(*)
         WHERE V.Avion= A2.matricula and A2.modelo=M.modelo and V.IdVuelo=I.Vuelo and I.IdIncidente=R.IdIncidente and R.IdIncidente=CA.IdIncidente and CA.Causa='seguridad'
 GROUP BY M.modelo, M.fabricante, M.motor
 
+ALTER SESSION SET nls_date_format = 'dd-mm-yyyy hh24:mi:ss';
 
-Select A.IATA
+Select A.IATA,V.FechSalida, count(*)
 FROM VUELOS V, VUELOS V2, AEROPUERTOS A
-WHERE V.AeropuertoO = A.IATA and (V2.AeropuertoO = A.IATA and V.FechSalida+15mins > V2.FechSalida and V.FechSalida-15mins < V2.FechSalida) or (V2.AeropuertoD = A.IATA and V.FechSalida+15mins > V2.FechLlegada and V.FechSalida-15mins < V2.FechLlegada)
-GROUP by A.IATA
+WHERE V.AeropuertoO = A.IATA and ((V2.AeropuertoO = A.IATA and V.FechSalida + 15/1440 > V2.FechSalida and V.FechSalida - 15/1440 < V2.FechSalida) or (V2.AeropuertoD = A.IATA and V.FechSalida + 15/1440 > V2.FechLlegada and V.FechSalida - 15/1440< V2.FechLlegada))
+GROUP BY V.IdVuelo, A.IATA, V.FechSalida
+
+
+ALTER SESSION SET nls_date_format = 'dd-mm-yyyy hh24:mi:ss';
+Select V.FechLlegada, V.FechLlegada + 15/1440
+FROM VUELOS V
+WHERE V.IdVuelo<10
+
+
+
+
+
+2641
+4856
+
+--Fin 3:
+Select aeropuerto, max(num)
+from    (Select A.IATA as aeropuerto,V.FechSalida as fecha, count(*) as num
+        FROM VUELOS V, VUELOS V2, AEROPUERTOS A
+        WHERE V.AeropuertoO = A.IATA and ((V2.AeropuertoO = A.IATA and V.FechSalida + 15/1440 > V2.FechSalida and V.FechSalida - 15/1440 < V2.FechSalida) or (V2.AeropuertoD = A.IATA and V.FechSalida + 15/1440 > V2.FechLlegada and V.FechSalida - 15/1440< V2.FechLlegada))
+        GROUP BY V.IdVuelo, A.IATA, V.FechSalida)
+GROUP BY aeropuerto
+
