@@ -108,3 +108,9 @@ Select M.modelo, M.fabricante, M.motor, count(*)
         FROM VUELOS V, AVIONES A2, MODELO M, INCIDENTES I, RETRASOS R, CAUSAS CA
         WHERE V.Avion= A2.matricula and A2.modelo=M.modelo and V.IdVuelo=I.Vuelo and I.IdIncidente=R.IdIncidente and R.IdIncidente=CA.IdIncidente and CA.Causa='seguridad'
 GROUP BY M.modelo, M.fabricante, M.motor
+
+
+Select A.IATA
+FROM VUELOS V, VUELOS V2, AEROPUERTOS A
+WHERE V.AeropuertoO = A.IATA and (V2.AeropuertoO = A.IATA and V.FechSalida+15mins > V2.FechSalida and V.FechSalida-15mins < V2.FechSalida) or (V2.AeropuertoD = A.IATA and V.FechSalida+15mins > V2.FechLlegada and V.FechSalida-15mins < V2.FechLlegada)
+GROUP by A.IATA
