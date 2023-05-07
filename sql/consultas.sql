@@ -70,6 +70,38 @@ FROM (Select C2.Nombre as nombreT, count(*) as total
 WHERE C3.Nombre = nombreR and C3.Nombre = nombreT
 ORDER BY ratio DESC
 
+--FINNNNN 1:
+Select P.Nombre
+FROM (Select C3.Nombre as Nombre, retrasos*100/total as ratio
+        FROM (Select C2.Nombre as nombreT, count(*) as total
+                FROM COMPANIAS C2, VUELOS V2, AVIONES A2
+                WHERE V2.avion = A2.matricula and A2.compania = C2.codigo and C2.Nombre IN(Select C.Nombre
+                                                                                        FROM COMPANIAS C, VUELOS V, AVIONES A, RETRASOS R
+                                                                                        WHERE V.avion = A.matricula and A.compania = C.codigo and R.vuelo = V.IdVuelo
+                                                                                        GROUP BY C.Nombre)
+                GROUP BY C2.Nombre) X, (Select C.Nombre as nombreR, count(*) as retrasos
+                                                                                        FROM COMPANIAS C, VUELOS V, AVIONES A,  RETRASOS R
+                                                                                        WHERE V.avion = A.matricula and A.compania = C.codigo and R.vuelo = V.IdVuelo 
+                                                                                        GROUP BY C.Nombre) Z, COMPANIAS C3
+        WHERE C3.Nombre = nombreR and C3.Nombre = nombreT
+        ORDER BY ratio DESC) P, (Select C3.Nombre as Nombre, retrasos*100/total as ratio
+        FROM (Select C2.Nombre as nombreT, count(*) as total
+                FROM COMPANIAS C2, VUELOS V2, AVIONES A2
+                WHERE V2.avion = A2.matricula and A2.compania = C2.codigo and C2.Nombre IN(Select C.Nombre
+                                                                                        FROM COMPANIAS C, VUELOS V, AVIONES A, RETRASOS R
+                                                                                        WHERE V.avion = A.matricula and A.compania = C.codigo and R.vuelo = V.IdVuelo
+                                                                                        GROUP BY C.Nombre)
+                GROUP BY C2.Nombre) X, (Select C.Nombre as nombreR, count(*) as retrasos
+                                                                                        FROM COMPANIAS C, VUELOS V, AVIONES A,  RETRASOS R
+                                                                                        WHERE V.avion = A.matricula and A.compania = C.codigo and R.vuelo = V.IdVuelo 
+                                                                                        GROUP BY C.Nombre) Z, COMPANIAS C3
+        WHERE C3.Nombre = nombreR and C3.Nombre = nombreT
+        ORDER BY ratio DESC) P2
+WHERE P.ratio <= P2.ratio
+GROUP BY P.Nombre
+HAVING count(*) <= 3
+ORDER BY count(*) ASC
+
 
 
 
