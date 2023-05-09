@@ -54,10 +54,49 @@ Select DISTINCT aeropuerto2, max, fecha
 FROM    (Select  aeropuerto as aeropuerto2, max(num) as max
         from    (Select A.IATA as aeropuerto,V.FechSalida as fecha, count(*) as num
                 FROM VUELOS V, VUELOS V2, AEROPUERTOS A
-                WHERE V.AeropuertoO = A.IATA and ((V2.AeropuertoO = A.IATA and V.FechSalida + 15/1440 > V2.FechSalida and V.FechSalida - 15/1440 < V2.FechSalida) or (V2.AeropuertoD = A.IATA and V.FechSalida + 15/1440 > V2.FechLlegada and V.FechSalida - 15/1440< V2.FechLlegada))
+                WHERE V.AeropuertoO = A.IATA and ((V2.AeropuertoO = A.IATA and V.FechSalida + 15/1440 >= V2.FechSalida and V.FechSalida - 15/1440 <= V2.FechSalida) or (V2.AeropuertoD = A.IATA and V.FechSalida + 15/1440 >= V2.FechLlegada and V.FechSalida - 15/1440<= V2.FechLlegada))
                 GROUP BY V.IdVuelo, A.IATA, V.FechSalida)
         GROUP BY aeropuerto) X, (Select A.IATA as aeropuerto,V.FechSalida as fecha, count(*) as num
                 FROM VUELOS V, VUELOS V2, AEROPUERTOS A
-                WHERE V.AeropuertoO = A.IATA and ((V2.AeropuertoO = A.IATA and V.FechSalida + 15/1440 > V2.FechSalida and V.FechSalida - 15/1440 < V2.FechSalida) or (V2.AeropuertoD = A.IATA and V.FechSalida + 15/1440 > V2.FechLlegada and V.FechSalida - 15/1440< V2.FechLlegada))
+                WHERE V.AeropuertoO = A.IATA  and ((V2.AeropuertoO = A.IATA and V.FechSalida + 15/1440 >= V2.FechSalida and V.FechSalida - 15/1440 <= V2.FechSalida) or (V2.AeropuertoD = A.IATA and V.FechSalida + 15/1440 >= V2.FechLlegada and V.FechSalida - 15/1440<= V2.FechLlegada))
                 GROUP BY V.IdVuelo, A.IATA, V.FechSalida) Z
-WHERE Z.aeropuerto=X.aeropuerto2 and Z.num=X.max 
+WHERE Z.aeropuerto=X.aeropuerto2 and Z.num=X.max
+
+
+
+
+Select max
+Select A.IATA as aeropuerto,V.FechSalida as fecha, TO_CHAR(V.FechSalida, 'HH24:MI') as hora, count(*) as num
+                FROM VUELOS V, VUELOS V2, AEROPUERTOS A
+                WHERE V.AeropuertoO = A.IATA  and ((V2.AeropuertoO = A.IATA and V.FechSalida + 15/1440 >= V2.FechSalida and V.FechSalida - 15/1440 <= V2.FechSalida) or (V2.AeropuertoD = A.IATA and V.FechSalida + 15/1440 >= V2.FechLlegada and V.FechSalida - 15/1440<= V2.FechLlegada))
+                GROUP BY V.IdVuelo, A.IATA, V.FechSalida
+                ORDER BY num
+
+
+Select X.aeropuerto, X.hora, X.num
+FROM    (Select max(num) AS maximo
+        FROM (Select A.IATA as aeropuerto,V.FechSalida as fecha, TO_CHAR(V.FechSalida, 'YYYY-MM-DD hh:mm:ss') as hora, count(*) as num
+                        FROM VUELOS V, VUELOS V2, AEROPUERTOS A
+                        WHERE V.AeropuertoO = A.IATA  and ((V2.AeropuertoO = A.IATA and V.FechSalida + 15/1440 >= V2.FechSalida and V.FechSalida - 15/1440 <= V2.FechSalida) or (V2.AeropuertoD = A.IATA and V.FechSalida + 15/1440 >= V2.FechLlegada and V.FechSalida - 15/1440<= V2.FechLlegada))
+                        GROUP BY V.IdVuelo, A.IATA, V.FechSalida
+                        ORDER BY num) X) Z, (Select A.IATA as aeropuerto,V.FechSalida as fecha, TO_CHAR(V.FechSalida, 'HH24:MI') as hora, count(*) as num
+                        FROM VUELOS V, VUELOS V2, AEROPUERTOS A
+                        WHERE V.AeropuertoO = A.IATA  and ((V2.AeropuertoO = A.IATA and V.FechSalida + 15/1440 >= V2.FechSalida and V.FechSalida - 15/1440 <= V2.FechSalida) or (V2.AeropuertoD = A.IATA and V.FechSalida + 15/1440 >= V2.FechLlegada and V.FechSalida - 15/1440<= V2.FechLlegada))
+                        GROUP BY V.IdVuelo, A.IATA, V.FechSalida
+                        ORDER BY num) X
+WHERE X.num=maximo
+
+
+Select X.aeropuerto, X.fecha as fechafin, X.num
+FROM    (Select max(num) AS maximo
+        FROM (Select A.IATA as aeropuerto,V.FechSalida as fecha, count(*) as num
+                        FROM VUELOS V, VUELOS V2, AEROPUERTOS A
+                        WHERE V.AeropuertoO = A.IATA  and ((V2.AeropuertoO = A.IATA and V.FechSalida + 15/1440 >= V2.FechSalida and V.FechSalida - 15/1440 <= V2.FechSalida) or (V2.AeropuertoD = A.IATA and V.FechSalida + 15/1440 >= V2.FechLlegada and V.FechSalida - 15/1440<= V2.FechLlegada))
+                        GROUP BY V.IdVuelo, A.IATA, V.FechSalida
+                        ORDER BY num) X) Z, (Select A.IATA as aeropuerto,V.FechSalida as fecha, count(*) as num
+                        FROM VUELOS V, VUELOS V2, AEROPUERTOS A
+                        WHERE V.AeropuertoO = A.IATA  and ((V2.AeropuertoO = A.IATA and V.FechSalida + 15/1440 >= V2.FechSalida and V.FechSalida - 15/1440 <= V2.FechSalida) or (V2.AeropuertoD = A.IATA and V.FechSalida + 15/1440 >= V2.FechLlegada and V.FechSalida - 15/1440<= V2.FechLlegada))
+                        GROUP BY V.IdVuelo, A.IATA, V.FechSalida
+                        ORDER BY num) X
+WHERE X.num=maximo
+GROUP BY X.aeropuerto, X.fecha, X.num
