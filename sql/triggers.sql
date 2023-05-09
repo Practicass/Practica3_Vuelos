@@ -1,105 +1,52 @@
-
-/**NO BORRAR DE DESVIO**/
-CREATE or REPLACE TRIGGER NOBORRARDES
-BEFORE DELETE ON DESVIO
-BEGIN
-  RAISE_APPLICATION_ERROR(-20000, 'No se pueden borrar Desvios, borre desde incidencia');
-END NOBORRARDES;
-/
-/**NO BORRAR DE RETRASO**/
-CREATE or REPLACE TRIGGER NOBORRARRET
-BEFORE DELETE ON RETRASO
-BEGIN
-  RAISE_APPLICATION_ERROR(-20000, 'No se pueden borrar Retraso, borre desde incidencia');
-END NOBORRARRET;
-/
-
-
-/**Mantenimiento tabla INCRET (es un join)**/
-CREATE or REPLACE TRIGGER UPDINCRET
-AFTER UPDATE ON RETRASO
+--Primer trigger: revisa que el vuelo que se introduce tenga una fecha anterior al año de fabricaciñon del avión
+CREATE OR REPLACE TRIGGER AvionNoFabricado
+BEFORE INSERT OR UPDATE ON VUELOS
 FOR EACH ROW
+DECLARE
+  agno NUMBER(4);
 BEGIN
-  UPDATE INCRET SET Tiempo=:new.Tiempo WHERE ID=:old.ID;
-END UPDINCRET;
+  SELECT A.AgnoFabricacion INTO agno FROM AVIONES A
+  WHERE A.Matricula = :new.Avion;
+  if (agno > EXTRACT(YEAR FROM :new.fechSalida))
+  then 
+      raise_application_error(-20000,'El avion no habia sido fabricado aun');
+  end if;
+
+END AvionNoFabricado;
 /
 
-/* no hace falta borrar de esta tabla, delete casacade 
- lo hara por nosotros*/
 
-CREATE or REPLACE TRIGGER INSINCRET
-AFTER INSERT ON RETRASO
-FOR EACH ROW
+--Segundo trigger: revisa que el aeropuerto al que se produce un desvío no sea el mismo que el aeropuerto destino
+CREATE OR REPLACE TRIGGER DesvioIncorrecto
+BEFORE INSERT OR UPDATE ON DESVIOS
+FOR EACH ROW 
+DECLARE 
+  cambio VARCHAR(5);
 BEGIN
-  INSERT INTO INCRET(ID,VUELO,Tiempo)
-  select id,vuelo, Tiempo
-  from 
-  incidencia
-  natural join 
-  retraso
-  where id=:old.id ;
-END INSINCRET;
+  SELECT V.AeropuertoD INTO cambio FROM VUELOS V
+  WHERE V.idVuelo = :new.Vuelo;
+  
+  if(cambio = :new.AeropuertoAlt)
+  then raise_application_error(-20001, 'Un vuelo no se desvía al mismo aeropuerto que el destino');
+  end if;
+    
+END DesvioIncorrecto;
 /
-/*solo se mira al incluir en retraso ya que obligatoriamnte existe
-en incidencia (clave de retraso en delete cascade), por lo que existe esta id
-en las dos tablas y se puede hacer join de dicha fila*/
-
-/**solo hace falta borrar al deletar de retraso, ya que de incidencia esta en cascade*/
 
 
-/**Mantenimiento tabla INCDESV (es un join)**/
-
-/* no hace falta borrar de esta tabla, delete casacade 
- lo hara por nosotros*/
-CREATE or REPLACE TRIGGER UPDINCDESV
-AFTER UPDATE ON DESVIO
+--Tercer trigger: revisa que al insertar un nuevo vuelo el mismo avión salga en vuelos distintos a la misma hora
+CREATE OR REPLACE TRIGGER NoVueloRepe
+BEFORE INSERT OR UPDATE ON VUELOS
 FOR EACH ROW
+DECLARE
+  vuelos NUMBER(4);
 BEGIN
-  UPDATE INCDESV SET NEWAVION=:new.NEWAVION, NEWAEROPUERTO=:new.NEWAEROPUERTO WHERE ID=:old.ID;
-END UPDINCDESV;
-/
-
-
-
-CREATE or REPLACE TRIGGER INSINCDESV
-AFTER INSERT ON DESVIO
-FOR EACH ROW
-BEGIN
-INSERT INTO INCDESV(ID,VUELO,NEWAVION,NEWAEROPUERTO)
-select id,vuelo, NEWAVION,NEWAEREOPUERTO
-from 
-incidencia
-natural join 
-Desvio
-where id=:old.id ;
-END INSINCDESV;
-/
-/*solo se mira al incluir en desvio ya que obligatoriamnte existe
-en incidencia (clave de retraso en delete cascade), por lo que existe esta id
-en las dos tablas y se puede hacer join de dicha fila*/
-
-/**solo hace falta borrar al deletar de desvio, ya que de incidencia esta en cascade*/
-
-
-/**Actualizar desvios y retrasos al poner Incidencias**/
-SET SERVEROUTPUT ON
-
-CREATE or REPLACE TRIGGER NEWRETRASO
-AFTER INSERT ON INCIDENCIA
-FOR EACH ROW
-WHEN (new.tipo = 'retrasado')
-  BEGIN
-  INSERT INTO RETRASO(id) VALUES (:new.id);
-  DBMS_OUTPUT.put_line ('Ahora se deberÃ­a especificar el tiempo de retraso');
-END NEWRETRASO;
-/
-
-CREATE or REPLACE TRIGGER NEWDESVIO
-AFTER INSERT ON INCIDENCIA
-FOR EACH ROW
-WHEN ((new.tipo = 'desviado1') OR (new.tipo = 'desviado2'))
-  BEGIN
-  INSERT INTO DESVIO(id) VALUES (:new.id);
-  DBMS_OUTPUT.put_line ('Ahora se deberÃ­a especificar el nuevo avion y nuevo aeropuerto');
-END NEWDESVIO;
+  SELECT count(*) INTO vuelos FROM VUELOS V
+  WHERE V.Avion=:new.Avion and (V.fechSalida=:new.fechSalida) or (V.fechLlegada>:new.fechSalida);
+  
+  if(vuelos > 0) 
+  then raise_application_error(-20002, 'Un avión con la misma matrícula no puede despegar a la misma hora');
+  end if;
+  
+END NoVueloRepe;
 /
