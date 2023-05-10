@@ -32,9 +32,9 @@ CREATE TABLE VUELOS (
     Numero NUMBER(6),
     Avion VARCHAR(10),
     AeropuertoO VARCHAR(5),
-    AeropuertoD VARCHAR(5),
+    AeropuertoD VARCHAR(5), --Hacer check para que sean distintos 
     FechSalida DATE,
-    FechLlegada DATE,
+    FechLlegada DATE, --Hacer check de que sea fecha de llegada mayor que la de salida
     FOREIGN KEY(Avion) REFERENCES AVIONES(Matricula) ON DELETE CASCADE,
     FOREIGN KEY(AeropuertoO) REFERENCES AEROPUERTOS(IATA) ON DELETE CASCADE,
     FOREIGN KEY(AeropuertoD) REFERENCES AEROPUERTOS(IATA) ON DELETE CASCADE
