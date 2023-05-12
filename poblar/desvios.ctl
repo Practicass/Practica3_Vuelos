@@ -6,7 +6,7 @@ FIELDS TERMINATED BY ';'
 OPTIONALLY ENCLOSED BY '"'
 TRAILING NULLCOLS
 ( 
-    IdVuelo,
+    Vuelo,
     AeropuertoAlt
     IdDesvio "desvios.nextval"
 )
