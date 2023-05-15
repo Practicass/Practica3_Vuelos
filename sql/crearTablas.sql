@@ -30,7 +30,7 @@ CREATE TABLE AVIONES (
 CREATE TABLE VUELOS (
     IdVuelo NUMBER(6) PRIMARY KEY,
     Numero NUMBER(6) NOT NULL,
-    Avion VARCHAR(10) NOT NULL,
+    Avion VARCHAR(10),
     AeropuertoO VARCHAR(5) NOT NULL,
     AeropuertoD VARCHAR(5), --Hacer check para que sean distintos 
     FechSalida DATE NOT NULL,
