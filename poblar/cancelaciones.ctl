@@ -7,5 +7,4 @@ OPTIONALLY ENCLOSED BY '"'
 TRAILING NULLCOLS
 ( 
     Vuelo
-    IdCancelacion "retrasos.nextval"
 )
