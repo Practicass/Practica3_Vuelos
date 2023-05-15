@@ -123,7 +123,7 @@ FROM    (Select max(num) AS maximo
 WHERE X.num=maximo
 
 
-Select X.aeropuerto, X.fecha as fechafin, X.num
+Select X.aeropuerto, TO_CHAR(X.fecha, 'YYYY-MM-DD hh:mm:ss')  as fechafin, X.num
 FROM    (Select max(num) AS maximo
         FROM (Select A.IATA as aeropuerto,V.FechSalida as fecha, count(*) as num
                         FROM VUELOS V, VUELOS V2, AEROPUERTOS A
