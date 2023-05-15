@@ -9,5 +9,5 @@ TRAILING NULLCOLS
     Vuelo,
     Duracion,
     Causa,
-    IdRetraso "retrasos.nextval"
+    IdRetraso "retarded.nextval"
 )

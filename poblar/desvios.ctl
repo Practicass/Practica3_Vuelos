@@ -7,6 +7,6 @@ OPTIONALLY ENCLOSED BY '"'
 TRAILING NULLCOLS
 ( 
     Vuelo,
-    AeropuertoAlt
-    IdDesvio "desvios.nextval"
+    AeropuertoAlt,
+    IdDesvio "desv.nextval"
 )
