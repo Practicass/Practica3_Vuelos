@@ -20,7 +20,7 @@ FROM  P, P dos
 WHERE P.ratio <= dos.ratio
 GROUP BY P.Nombre, P.ratio
 HAVING count(*) <= 3
-ORDER BY P.ratio DESC 
+ORDER BY P.ratio DESC ;
 --2:
 
 WITH 
@@ -34,7 +34,7 @@ WITH
         GROUP BY M.MODELO)
 Select M2.Modelo, M2.fabricante, M2.motor
 FROM MODELO M2, X, Z
-WHERE   X.model = M2.modelo and Z.model = M2.modelo and X.num>Z.num
+WHERE   X.model = M2.modelo and Z.model = M2.modelo and X.num>Z.num;
 
 --3:
 

@@ -17,9 +17,13 @@ Select M2.Modelo, M2.Fabricante, M2.Motor
 FROM MODELO M2, retardos RE, retardos_seg R
 WHERE   ret_seg > ret and M2.Modelo = R.Mod and RE.Modelo=R.Mod;
 
-CREATE INDEX vuelos_idx ON (idVuelo, Avion);
+DROP  MATERIALIZED VIEW retardos_seg;
+DROP MATERIALIZED VIEW retardos;
 
-CREATE INDEX aviones_idx ON (Matricula, Compania);
+
+CREATE INDEX vuelos_idx ON VUELOS(idVuelo, Avion);
+
+CREATE INDEX aviones_idx ON AVIONES(Matricula, Compania);
 DROP INDEX vuelos_idx ;
 DROP INDEX aviones_idx ;
 
