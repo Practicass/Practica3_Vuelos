@@ -134,6 +134,20 @@ WHERE   (Select count(*)*100
         WHERE V.Avion= A2.matricula and A2.modelo=M.modelo and M.modelo=M2.modelo and V.IdVuelo=R.Vuelo 
         GROUP BY M.MODELO)
 
+WITH 
+        X as(Select M.modelo as model, count(*)*100 as num
+                FROM VUELOS V, AVIONES A2, MODELO M, RETRASOS R
+                WHERE V.Avion= A2.matricula and A2.modelo=M.modelo and V.IdVuelo=R.Vuelo and R.causa='seguridad'
+                GROUP BY M.MODELO),
+        Z as (Select M.modelo as model, count(*) as num
+        FROM VUELOS V, AVIONES A2, MODELO M, RETRASOS R
+        WHERE V.Avion= A2.matricula and A2.modelo=M.modelo and V.IdVuelo=R.Vuelo 
+        GROUP BY M.MODELO)
+Select M2.Modelo, M2.fabricante, M2.motor
+FROM MODELO M2, X, Z
+WHERE   X.model = M2.modelo and Z.model = M2.modelo and X.num>Z.num
+        
+
 
 
 Select M.modelo, M.fabricante, M.motor, count(*)
