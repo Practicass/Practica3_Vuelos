@@ -130,14 +130,14 @@ WHERE   X.model = M2.modelo and Z.model = M2.modelo and X.num>Z.num
 --3:
 
 WITH
-        X as (Select A.IATA as aeropuerto,V.FechSalida as fecha, count(*) as num
+        X as (Select A.IATA as aeropuerto,V.FechSalida as fecha, count(*) as num, A.nombre as nom
                         FROM VUELOS V, VUELOS V2, AEROPUERTOS A
                         WHERE V.AeropuertoO = A.IATA  and ((V2.AeropuertoO = A.IATA and V.FechSalida + 15/1440 >= V2.FechSalida and V.FechSalida - 15/1440 <= V2.FechSalida) or (V2.AeropuertoD = A.IATA and V.FechSalida + 15/1440 >= V2.FechLlegada and V.FechSalida - 15/1440<= V2.FechLlegada))
-                        GROUP BY V.IdVuelo, A.IATA, V.FechSalida
+                        GROUP BY V.IdVuelo, A.IATA, V.FechSalida,A.nombre
                         ),
         Z as (Select max(num) AS maximo
         FROM  X)
-Select X.aeropuerto, TO_CHAR(X.fecha, 'YYYY-MM-DD hh:mi:ss') as fechafin, X.num
+Select X.nom,X.aeropuerto, TO_CHAR(X.fecha, 'YYYY-MM-DD hh:mi:ss') as fechafin, X.num
 FROM     Z,  X
 WHERE X.num=maximo
-GROUP BY X.aeropuerto, X.fecha, X.num
+GROUP BY X.nom,X.aeropuerto, X.fecha, X.num;

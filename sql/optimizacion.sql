@@ -43,26 +43,17 @@ DROP INDEX vuelos_idx2 ;
 
 
 CREATE MATERIALIZED VIEW actividad AS
-Select A.IATA as aeropuerto,V.FechSalida as fecha, count(*) as num
-                        FROM VUELOS V, VUELOS V2, AEROPUERTOS A
-                        WHERE V.AeropuertoO = A.IATA  and ((V2.AeropuertoO = A.IATA and V.FechSalida + 15/1440 >= V2.FechSalida and V.FechSalida - 15/1440 <= V2.FechSalida) or (V2.AeropuertoD = A.IATA and V.FechSalida + 15/1440 >= V2.FechLlegada and V.FechSalida - 15/1440<= V2.FechLlegada))
-                        GROUP BY V.IdVuelo, A.IATA, V.FechSalida
-                        ORDER BY num;
+Select A.IATA as aeropuerto,V.FechSalida as fecha, count(*) as num, A.nombre as nom
+FROM VUELOS V, VUELOS V2, AEROPUERTOS A
+WHERE V.AeropuertoO = A.IATA  and ((V2.AeropuertoO = A.IATA and V.FechSalida + 15/1440 >= V2.FechSalida and V.FechSalida - 15/1440 <= V2.FechSalida) or (V2.AeropuertoD = A.IATA and V.FechSalida + 15/1440 >= V2.FechLlegada and V.FechSalida - 15/1440<= V2.FechLlegada))
+GROUP BY V.IdVuelo, A.IATA, V.FechSalida, A.nombre;
 
 
---op1
-WITH
-        Z as (Select max(actividad.num) AS maximo
-        FROM  actividad)
- Select actividad.aeropuerto, TO_CHAR(actividad.fecha, 'YYYY-MM-DD hh:mi:ss') as fechafin, actividad.num
-FROM     Z,actividad
-WHERE actividad.num=maximo
-GROUP BY actividad.aeropuerto, actividad.fecha, actividad.num;
 
---op2
- Select actividad.aeropuerto, TO_CHAR(actividad.fecha, 'YYYY-MM-DD hh:mi:ss') as fechafin, actividad.num
+
+Select actividad.nom, actividad.aeropuerto, TO_CHAR(actividad.fecha, 'YYYY-MM-DD hh:mi:ss') as fechafin, actividad.num
 FROM     actividad
 WHERE actividad.num=(Select max(actividad.num) AS maximo
         FROM  actividad)
-GROUP BY actividad.aeropuerto, actividad.fecha, actividad.num;
+GROUP BY actividad.nom, actividad.aeropuerto, actividad.fecha, actividad.num;
                        
