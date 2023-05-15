@@ -20,7 +20,7 @@ FROM  P, P dos
 WHERE P.ratio <= dos.ratio
 GROUP BY P.Nombre, P.ratio
 HAVING count(*) <= 3
-ORDER BY P.ratio DESC
+ORDER BY P.ratio DESC 
 --2:
 
 WITH 
