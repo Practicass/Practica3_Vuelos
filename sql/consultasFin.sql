@@ -46,14 +46,10 @@ WITH
         P as (Select C3.Nombre as Nombre, retrasos*100/total as ratio
                 FROM  X,  Z, COMPANIAS C3
                 WHERE C3.Nombre = nombreR and C3.Nombre = nombreT
-                ORDER BY ratio DESC),
-        P2 as (Select C3.Nombre as Nombre, retrasos*100/total as ratio
-                FROM X, Z, COMPANIAS C3
-                WHERE C3.Nombre = nombreR and C3.Nombre = nombreT
-                ORDER BY ratio DESC) 
+                ORDER BY ratio DESC)
 Select P.Nombre, P.ratio
-FROM  P, P2
-WHERE P.ratio <= P2.ratio
+FROM  P, P dos
+WHERE P.ratio <= dos.ratio
 GROUP BY P.Nombre, P.ratio
 HAVING count(*) <= 3
 ORDER BY P.ratio DESC
