@@ -30,6 +30,39 @@ GROUP BY P.Nombre, P.ratio
 HAVING count(*) <= 3
 ORDER BY P.ratio DESC
 
+CREATE OR REPLACE VIEW CompanyasPorPuntualidad AS
+SELECT NombreC, Puntualidad
+FROM COMPANIAS
+    JOIN(
+        SELECT V.Codigo, (retrasos * 100 / total) AS Puntualidad
+        FROM(
+            SELECT Codigo, COUNT(Codigo) AS TotalVuelos
+            FROM Vuelos
+                JOIN Aviones ON
+                    AvionV = Matricula
+                JOIN Companyas ON
+                    CompanyaAv = Codigo
+            GROUP BY Codigo
+        ) VuelosCompanyas
+            JOIN(
+                SELECT Codigo, COUNT(Codigo) AS TotalRetrasos
+                FROM(
+                    SELECT DISTINCT idVuelo, AvionV
+                    FROM Vuelos
+                        JOIN Retrasos ON
+                            idVuelo = VueloRetrasado
+                ) VuelosRetrasados
+                    JOIN Aviones ON
+                        AvionV = Matricula
+                    JOIN Companyas ON
+                        CompanyaAv = Codigo
+                GROUP BY Codigo
+            ) VuelosRetrasados ON
+                VuelosCompanyas.Codigo = VuelosRetrasados.Codigo
+        ORDER BY Puntualidad DESC
+    ) PuntualidadCompanyas ON
+        Companyas.Codigo = PuntualidadCompanyas.Codigo;
+
 
 WITH
         X as (Select C2.Nombre as nombreT, count(*) as total
@@ -43,6 +76,30 @@ WITH
                                                                                         FROM COMPANIAS C, VUELOS V, AVIONES A,  RETRASOS R
                                                                                         WHERE V.avion = A.matricula and A.compania = C.codigo and R.vuelo = V.IdVuelo 
                                                                                         GROUP BY C.Nombre),
+        P as (Select C3.Nombre as Nombre, retrasos*100/total as ratio
+                FROM  X,  Z, COMPANIAS C3
+                WHERE C3.Nombre = nombreR and C3.Nombre = nombreT
+                ORDER BY ratio DESC)
+Select P.Nombre, P.ratio
+FROM  P, P dos
+WHERE P.ratio <= dos.ratio
+GROUP BY P.Nombre, P.ratio
+HAVING count(*) <= 3
+ORDER BY P.ratio DESC
+
+
+WITH
+        X as (Select C2.Nombre as nombreT, count(*) as total
+                FROM COMPANIAS C2, VUELOS V2, AVIONES A2
+                WHERE V2.avion = A2.matricula and A2.compania = C2.codigo and C2.Nombre IN(Select C.Nombre
+                                                                                        FROM COMPANIAS C, VUELOS V, AVIONES A, RETRASOS R
+                                                                                        WHERE V.avion = A.matricula and A.compania = C.codigo and R.vuelo = V.IdVuelo
+                                                                                        GROUP BY C.Nombre)
+                GROUP BY C2.Nombre) , 
+        Z as (Select C.Nombre as nombreR, count(*) as retrasos
+                        FROM COMPANIAS C, VUELOS V, AVIONES A,  RETRASOS R
+                        WHERE V.avion = A.matricula and A.compania = C.codigo and R.vuelo = V.IdVuelo 
+                        GROUP BY C.Nombre),
         P as (Select C3.Nombre as Nombre, retrasos*100/total as ratio
                 FROM  X,  Z, COMPANIAS C3
                 WHERE C3.Nombre = nombreR and C3.Nombre = nombreT
